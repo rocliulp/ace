@@ -101,14 +101,16 @@ int main (int argc, char* argv[]) {
         return ErrorExit(ret);
       }
     } else if (c == ')') {
-      while (!emptyStack(head)) {
+      if (!emptyStack(head)) {
         ret = pop ((int*)&c, head);
         if (ret != 0) {
           return ErrorExit(ret);
         }
         printf ("%c", c);
+      } else {
+        return 1;
       }
-    } else if (c > '0' && c < '9') {
+    } else if (c >= '0' && c <= '9') {
       printf ("%1c", c);
     } else {
       printf (" ");
@@ -116,6 +118,13 @@ int main (int argc, char* argv[]) {
     
     c = string[++i];
   }
+
+  if (emptyStack(head)) return 1;
+  ret = pop((int*)(&c), head);
+  if (ret != 0) {
+    return ErrorExit(ret);
+  }
+  printf ("%c", c);
 
   stackRemove (head);
   printf ("\n\r");
