@@ -6,13 +6,13 @@ struct node {
   struct node * next;
 };
 
-int stackInit (struct node * head) {
-  if (head != 0) {
+int stackInit (struct node ** head) {
+  if (head == 0) {
     return 1;
   }
-  head = malloc (sizeof (struct node));
-  head -> key = -1;
-  head -> next = 0;
+  *head = malloc (sizeof (struct node));
+  (*head) -> key = -1;
+  (*head) -> next = 0;
   return 0;
 }
 
@@ -66,20 +66,46 @@ int emptyStack (struct node * head) {
   return 0;
 }
 
+int ErrorExit(int ret) {
+  printf ("Error code: %d", ret);
+  return ret;
+}
+
 int main (int argc, char* argv[]) {
   char c = '\0';
   struct node * head = 0;
-  stackInit (head);
-  while (scanf("%1s", &c) != EOF) {
+  int ret = 0;
+  int i = 0;
+  char string[1024] = {'\0'};
+  
+  scanf ("%s", string);
+
+  ret = stackInit (&head);
+  if (ret != 0) {
+    return ErrorExit(ret);
+  }
+
+  i = 0;
+  c = string[i];
+  while (c != '\0') {
     if (c == '(') {
       printf (" ");
     } else if (c == '+') {
-      push (c, head);
+      ret = push (c, head);
+      if (ret != 0) {
+        return ErrorExit(ret);
+      }
     } else if (c == '*') {
-      push (c, head);
+      ret = push (c, head);
+      if (ret != 0) {
+        return ErrorExit(ret);
+      }
     } else if (c == ')') {
       while (!emptyStack(head)) {
-        pop (&c, head);
+        ret = pop ((int*)&c, head);
+        if (ret != 0) {
+          return ErrorExit(ret);
+        }
         printf ("%c", c);
       }
     } else if (c > '0' && c < '9') {
@@ -87,6 +113,8 @@ int main (int argc, char* argv[]) {
     } else {
       printf (" ");
     }
+    
+    c = string[++i];
   }
 
   stackRemove (head);
