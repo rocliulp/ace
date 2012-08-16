@@ -1,69 +1,55 @@
 #include <stdio.h>
 
-#define N 5
+#define N 10
 
-static int stack[N] = {0};
+static int queue[N] = {0};
 static int bottom = -1;
 static int top = -1;
 
-static int stackInit () {
+static int queueInit () {
   top = -1;
   bottom = -1;
   return 0;
 }
 
-static int push (int v) {
-  if (bottom > top) {
-    if (++bottom < N) {
-      stack[bottom] = v;
-    } else if (top == 0) {
-      return 1;
-    } else {
-      bottom = 0;
-      stack[bottom] = v;
-    }
-  } else if (bottom < top){
-    if (++bottom < top) {
-      stack[bottom] = v;      
-    } else {
-      return 1;
-    }
-  } else {
-    stack[++bottom] = v;
-  }
-
+static int put (int v) {
   return 0;
 }
 
-static int pop (int* v) {
-  if (top < bottom) {
-    *v = stack[++top];
-    if (top == bottom) {
-      top = -1;
-      bottom -1;
-    }
-  } else if (top > bottom) {
-    if (++top < N) {
-      *v = stack[top];
-    } else {
-      top = 0;
-      *v = stack[top];
-      if (top == bottom) {
-        top = -1;
-        bottom = -1;
-      }
-    }
-  } else {
-    return 1;
-  }
+static int get (int* v) {
   return 0;
 }
 
 static int isEmtpy () {
-  if (bottom == top) return 1;
-  else return 0;
+  return 0;
+}
+
+static int printQueue () {
+  return 0;
+}
+
+static int ErrorExit (int ret) {
+  printf ("Error: %d\n\r", ret);
+  return ret;
 }
 
 int main (int argc, char* argv[]) {
+  int i = -1;
+  int v = 0;
+  int ret = 0;
+  char string[1024] = {'\0'};
+
+  scanf ("%s", string);
+
+  while (string[++i] != '\0') {
+    if (string[i] == '*') {
+      ret = get (&v);
+      if (ret != 0) return ErrorExit (ret);
+    } else {
+      ret = put (string[i]);
+      if (ret != 0) return ErrorExit (ret);
+    }
+    printQueue();
+  }
   return 0;
 }
