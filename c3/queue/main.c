@@ -3,12 +3,12 @@
 #define N 10
 
 static int queue[N] = {0};
-static int bottom = -1;
-static int top = -1;
+static int head = -1;
+static int tail = -1;
 
 static int queueInit () {
-  top = -1;
-  bottom = -1;
+  tail = -1;
+  head = -1;
   return 0;
 }
 
