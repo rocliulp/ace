@@ -13,10 +13,28 @@ static int queueInit () {
 }
 
 static int put (int v) {
+  if (tail >= head) {
+    ++tail;
+    if (tail < N) {
+    } else {
+    }
+  } else {
+    ++tail;
+    if (tail <= head) {
+    } else {
+    }
+  }
   return 0;
 }
 
 static int get (int* v) {
+  if (head == tail) {
+  } else if (head < tail) {
+  } else {
+    if (head < N) {
+    } else {
+    }
+  }
   return 0;
 }
 
