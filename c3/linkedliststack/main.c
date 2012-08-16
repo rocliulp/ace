@@ -76,7 +76,10 @@ int main (int argc, char* argv[]) {
   struct node * head = 0;
   int ret = 0;
   int i = 0;
+  int j = -1;
+  int x = 0;
   char string[1024] = {'\0'};
+  char express[1024] = {'\0'};
   
   scanf ("%s", string);
 
@@ -107,11 +110,13 @@ int main (int argc, char* argv[]) {
           return ErrorExit(ret);
         }
         printf ("%c", c);
+        express[++j] = c;
       } else {
-        return 1;
+        return ErrorExit (1);
       }
     } else if (c >= '0' && c <= '9') {
       printf ("%1c", c);
+      express[++j] = c;
     } else {
       printf (" ");
     }
@@ -125,9 +130,51 @@ int main (int argc, char* argv[]) {
     return ErrorExit(ret);
   }
   printf ("%c", c);
+  express[++j] = c;
 
-  stackRemove (head);
-  printf ("\n\r");
+  ret = stackRemove (head);
+  if (ret != 0) return ErrorExit (ret);
+  printf ("\n\r\n\r");
+  printf ("%s\n\r", express);
+
+  ret = stackInit (&head);
+  if (ret != 0) return ErrorExit (ret);
+
+  i = -1;
+  while (express[++i] != '\0') {
+    c = express[i];
+    j = 0;
+    x = 0;
+    if (c == '+') {
+      ret = pop (&x, head);
+      if (ret != 0) return ErrorExit (ret);
+
+      ret = pop (&j, head);
+      if (ret != 0) return ErrorExit (ret);
+
+      x = x + j;
+    } else if (c == '*') {
+      ret = pop (&x, head);
+      if (ret != 0) return ErrorExit (ret);
+
+      ret = pop (&j, head);
+      if (ret != 0) return ErrorExit (ret);
+
+      x = x * j;
+    } else if (c >= '0' && c <= '9') {
+      x = c - '0';
+    } else {
+      return ErrorExit (1);
+    }
+
+    ret = push (x, head);
+    if (ret != 0) return ErrorExit (ret);
+  }
+
+  printf ("%d\n\r", x);
+
+  ret = stackRemove (head);
+  if (ret != 0) return ErrorExit (ret);
 
   return 0;
 }
