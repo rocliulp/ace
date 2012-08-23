@@ -14,6 +14,16 @@ int init_node (struct node * head) {
   return 0;
 }
 
+int remove_node (struct node * head) {
+  if (head == 0) return 0;
+  while (head != 0) {
+    struct node * p = head -> next;
+    free (head);
+    head = p;
+  }
+  return 0;
+}
+
 int move_next_to_front (struct node * head, struct node * t) {
   if (head == 0) return 1;
   if (t == 0) return 1;
@@ -100,5 +110,31 @@ int main (int argc, char* argv[]) {
   ret = print_node (head);
   if (ret != 0) return error_exit (ret);  
 
+  printf ("First: ");
+  scanf ("%d", &i);
+  ret = get_node_by_value (&m, head, i);
+  if (ret != 0) return error_exit (ret);
+  if (m -> next == 0) return error_exit (ret);
+
+  printf ("Second: ");
+  scanf ("%d", &i);
+  ret = get_node_by_value (&tail, head, i);
+  if (ret != 0) return error_exit (ret);
+  if (tail -> next == 0) return error_exit (ret);
+
+  struct node * p = m -> next;
+  struct node * n = tail -> next;
+  struct node * t = n -> next;
+
+  m -> next = n ;
+  n -> next = p -> next;
+
+  tail -> next = p;
+  p -> next = t;
+
+  ret = print_node (head);
+  if (ret != 0) return error_exit (ret);
+
+  ret = remove_node (head);
   return 0;
 }
