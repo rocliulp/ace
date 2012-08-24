@@ -16,10 +16,12 @@ int main (int argc, char* argv[]) {
 
   i = 0;
   while (len > 0) {
+    if (plus > len ) plus = plus % len;
+
     if (i + plus == len - 1) {
       i = i + plus;
       printf ("%d ", array[i]);
-      i = 0;
+      --i;
       --len;
     } else {
       if (i + plus > len -1) {
