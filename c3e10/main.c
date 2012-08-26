@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define N 1024
+
 struct node {
   int value;
   struct node * next;
@@ -12,14 +14,18 @@ struct queue {
 };
 
 int queue_put (struct queue * q, int value) {
-  struct node * n = 0;  
+  struct node * n = 0;
+  int empty = 0;
+  int ret = 0;
   if (q == 0) return 1;
   
   n = malloc (sizeof (struct node));
   n -> value = value;
   n -> next = 0;
 
-  if (queue_is_empty (q)) {
+  ret = queue_is_empty (&empty, q);
+  if (ret != 0) return 1;
+  if (empty) {
     q -> head = n;
     q -> tail = n;
   } else {
@@ -32,8 +38,13 @@ int queue_put (struct queue * q, int value) {
 
 int queue_get (int* value, struct queue * q) {
   struct node * p = 0;
+  int empty = 0;
+  int ret = 0;
+
   if (q == 0) return 1;
-  if (queue_is_empty (q)) return 1;
+  ret = queue_is_empty (&empty, q);
+  if (ret != 0) return 1;
+  if (empty) return 1;
   p = q -> head;
   q -> head = p -> next;
   *value = p -> value;
@@ -42,11 +53,24 @@ int queue_get (int* value, struct queue * q) {
   return 0;
 }
 
-int queue_is_empty (struct queue * q) {
+int queue_is_empty (int* empty, struct queue * q) {
+  *empty = 0;
   if (q == 0) return 1;
-  if (q -> head == 0 && q -> tail == 0) return 1;
+  if (q -> head == 0 && q -> tail == 0) {
+    *empty = 1;
+    return 0;
+  } else if (q -> head == 0 && q -> tail != 0) {
+    return 1;
+  } else if (q -> head != 0 && q -> tail == 0) {
+    return 1;
+  } else if (q -> head !=0 && q -> tail != 0) {
+    *empty = 0;
+    return 0;
+  } else {
+    return 1;
+  }
   
-  return 0;
+  return 1;
 }
 
 int queue_free (struct queue * q) {
@@ -69,7 +93,7 @@ int queue_print (struct queue * q) {
 
   n = q -> head;
   while (n != 0) {
-    printf ("%d -> ", n -> value);
+    printf ("%c -> ", n -> value);
     n = n -> next;
   }
 
@@ -78,15 +102,39 @@ int queue_print (struct queue * q) {
 }
 
 int error_exit (int ret) {
-  printf ("Error: %d", ret);
+  printf ("Error: %d\n\r", ret);
   return ret;
 }
 
 int main (int argc, char* argv[]) {
-  struct queue * q = malloc (sizeof(struct queue));
+  struct queue * q = 0;
+  char string[N] = {'\0'};
+  int i = 0;
+  int ret = 0;
+  int c = 0;
+
+  scanf ("%s", string);
+
+  q = malloc (sizeof(struct queue));
   q -> head = 0;
   q -> tail = 0;
 
+  i = -1;
+  while (string[++i] != '\0') {
+    printf ("%d\n\r", i);
+
+    if (string[i] == '*') {
+      ret = queue_get (&c, q);
+      if (ret != 0) return error_exit (ret);
+    } else {
+      ret = queue_put (q, string[i]);
+      if (ret != 0) return error_exit (ret);
+    }
+
+    queue_print (q);
+  }
+
+  free (q);
 
   return 0;
 }
