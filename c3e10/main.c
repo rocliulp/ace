@@ -46,7 +46,12 @@ int queue_get (int* value, struct queue * q) {
   if (ret != 0) return 1;
   if (empty) return 1;
   p = q -> head;
-  q -> head = p -> next;
+  if (q -> head == q -> tail) {
+    q -> head = 0;
+    q -> tail = 0;
+  } else {
+    q -> head = p -> next;
+  }
   *value = p -> value;
   free (p);
 
