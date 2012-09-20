@@ -8,6 +8,7 @@
 struct stack {
   int capacity;
   void * p_array;
+  int top;
 };
 
 int stack_new (struct stack ** pp_stack, int capacity) {
@@ -25,6 +26,7 @@ int stack_new (struct stack ** pp_stack, int capacity) {
 
   p_stack -> capacity = capacity;
   p_stack -> p_array = p_void;
+  p_stack -> top = -1;
 
   *pp_stack = p_stack;
 
@@ -41,6 +43,13 @@ int stack_delete (struct stack * p_stack) {
 }
 
 int stack_pop (struct stack * p_stack, void const * p_obj) {
+  if (p_stack == NULL) return EC_NULL_POINTER;
+  if (p_stack -> top < 0) return EC_OUT_OF_RANGE;
+  if (p_stack -> top > p_stack -> capacity - 1) return EC_OUT_OF_RANGE;
+
+  p_obj = p_stack -> p_array [p_stack -> top];
+  --top;
+
   return EC_OK;
 }
 
