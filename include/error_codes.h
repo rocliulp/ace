@@ -5,7 +5,9 @@
 #ifndef _ERROR_CODES_H_
 #define _ERROR_CODES_H_
 
+#ifndef NULL
 #define NULL             0
+#endif
 
 #define EC_OK                0
 #define EC_NULL_POINTER      1

@@ -3,6 +3,8 @@
  * @summary Implementation of class stack.
  */
 #include <stdlib.h>
+#include <stdio.h>
+
 #include <error_codes.h>
 
 struct stack {
@@ -75,5 +77,18 @@ int stack_is_empty (struct stack const * p_stack, int * empty) {
   } else {
     * empty = 0;
   }
+  return EC_OK;
+}
+
+int stack_print (struct stack const * p_stack) {
+  int i = -1;
+  char const * p_char = NULL;
+  if (p_stack == NULL) return EC_NULL_POINTER;
+  if (p_stack -> p_array == NULL) return EC_NULL_POINTER;
+  while (++i < p_stack -> top + 1) {
+    p_char = (char const *)(p_stack -> p_array[i]);
+    putchar (* p_char);
+  }
+  printf ("\n\r");
   return EC_OK;
 }
