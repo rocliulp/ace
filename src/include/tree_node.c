@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <error_codes.h>
+#include <stack.h>
 
 struct tree_node {
   void const * p_void;
@@ -81,5 +82,60 @@ int tree_print (tree_t * p_tree) {
   tree_print (p_l);
   tree_print (p_r);
 
+  return EC_OK;
+}
+
+int tree_preorder_traverse (tree_t * p_tree) {
+  struct stack * p_stack = NULL;
+  int ret = 0;
+  int empty = 0;
+  struct tree_node * p_tn = NULL;
+  if (p_tree == NULL) return EC_NULL_POINTER;
+  
+  ret = stack_new (& p_stack, 10);
+  if (ret != EC_OK) return error_print (ret);
+  ret = stack_push (p_stack, p_tree);
+  if (ret != EC_OK) {
+    stack_delete (p_stack);
+    return error_print (ret);
+  }
+  ret = stack_is_empty (p_stack, & empty);
+  if (ret != EC_OK) {
+    stack_delete (p_stack);
+    return error_print (ret);
+  }
+  while (empty != 1) {
+    ret = stack_pop (p_stack, (void const * *) (& p_tn));
+    if (ret != EC_OK) {
+      stack_delete (p_stack);
+      return error_print (ret);
+    }
+    ret = tree_node_print (p_tn);
+    if (ret != EC_OK) {
+      stack_delete (p_stack);
+      return error_print (ret);
+    }
+    if (p_tn -> p_r != NULL) {
+      ret = stack_push (p_stack, p_tn -> p_r);
+      if (ret != EC_OK) {
+        stack_delete (p_stack);
+        return error_print (ret);
+      }
+    }
+    if (p_tn -> p_l != NULL) {
+      ret = stack_push (p_stack, p_tn -> p_l);
+      if (ret != EC_OK) {
+        stack_delete (p_stack);
+        return error_print (ret);
+      }
+    }
+
+    ret = stack_is_empty (p_stack, & empty);
+    if (ret != EC_OK) {
+      stack_delete (p_stack);
+      return error_print (ret);
+    }
+  }
+  stack_delete (p_stack);
   return EC_OK;
 }

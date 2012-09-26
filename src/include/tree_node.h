@@ -12,4 +12,6 @@ typedef struct tree_node tree_t;
 int tree_delete (tree_t * p_tree);
 int tree_print (tree_t * p_tree);
 
+int tree_preorder_traverse (tree_t * p_tree);
+
 #endif

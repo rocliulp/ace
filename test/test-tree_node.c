@@ -5,17 +5,6 @@
 #include <stack.h>
 #include <error.h>
 
-static int main_error_delete_tree_node (struct tree_node * p_tn) {
-  tree_delete ( (tree_t *) p_tn);
-  return EC_OK;
-}
-
-static int main_error_delete_stack (struct stack * p_stack) {
-  if (p_stack == NULL) return EC_NULL_POINTER;
-  stack_delete (p_stack);
-  return EC_OK;
-}
-
 int main (int argc, char * argv []) {
   char string [1024] = {'\0'};
   int ret = 0;
@@ -33,65 +22,76 @@ int main (int argc, char * argv []) {
   while (string [++i] != '\0') {
     ret = tree_node_new (& p_tn, (string + i));
     if (ret != EC_OK) {
-      main_error_delete_stack (p_stack);
+      stack_delete (p_stack);
       return error_print (ret);
     }
 
     if (string [i] == '*' || string [i] == '+') {
-      ret = stack_pop (p_stack, & p_s);
+      ret = stack_pop (p_stack, (void const * *) (& p_s));
       if (ret != EC_OK) {
-        main_error_delete_tree_node (p_tn);
-        main_error_delete_stack (p_stack);
+        tree_delete (p_tn);
+        stack_delete (p_stack);
         return error_print (ret);
       }
       ret = tree_node_set_right (p_tn, p_s);
       if (ret != EC_OK) {
-        main_error_delete_tree_node (p_tn);
-        main_error_delete_stack (p_stack);
+        tree_delete (p_tn);
+        stack_delete (p_stack);
         return error_print (ret);
       }
 
-      ret = stack_pop (p_stack, & p_s);
+      ret = stack_pop (p_stack, (void const * *)(& p_s));
       if (ret != EC_OK) {
-        main_error_delete_tree_node (p_tn);
-        main_error_delete_stack (p_stack);
+        tree_delete (p_tn);
+        stack_delete (p_stack);
         return error_print (ret);
       }
       ret = tree_node_set_left (p_tn, p_s);
       if (ret != EC_OK) {        
-        main_error_delete_tree_node (p_tn);
-        main_error_delete_stack (p_stack);
+        tree_delete (p_tn);
+        stack_delete (p_stack);
         return error_print (ret);
       }
     }
     
     ret = stack_push (p_stack, p_tn);
     if (ret != EC_OK) {
-      main_error_delete_tree_node (p_tn);
-      main_error_delete_stack (p_stack);
+      tree_delete (p_tn);
+      stack_delete (p_stack);
       return error_print (ret);
     }
   }
 
-  ret = stack_pop (p_stack, & p_tn);
+  ret = stack_pop (p_stack, (void const * *) (& p_tn));
   if (ret != EC_OK) {
-    main_error_delete_stack (p_stack);
+    stack_delete (p_stack);
     return error_print (ret);
   }
   ret = stack_is_empty (p_stack, & i);
   if (ret != EC_OK) {
-    main_error_delete_stack (p_stack);
+    stack_delete (p_stack);
     return error_print (ret);
   }
   if (i != 1) {
-    main_error_delete_stack (p_stack);
+    stack_delete (p_stack);
     return error_print (ret);
   }
   stack_delete (p_stack);
 
+  printf ("Tree print:\n\r");
   ret = tree_print ((tree_t *)p_tn);
   if (ret != EC_OK) {
+    tree_delete ((tree_t *)p_tn);
+    return error_print (ret);
   }
+
+  printf ("Tree preoder traverse:\n\r");
+  ret = tree_preorder_traverse (p_tn);
+  if (ret != EC_OK) {
+    tree_delete (p_tn);
+    return error_print (ret);
+  }
+
   tree_delete ((tree_t *)p_tn);
 
   return EC_OK;
