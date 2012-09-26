@@ -19,7 +19,7 @@ static int main_error_delete_stack (struct stack * p_stack) {
 int main (int argc, char * argv []) {
   char string [1024] = {'\0'};
   int ret = 0;
-  int i = 0;
+  int i = -1;
   struct tree_node * p_tn = NULL;
   struct tree_node * p_s = NULL;
   struct stack * p_stack = NULL;
@@ -44,7 +44,12 @@ int main (int argc, char * argv []) {
         main_error_delete_stack (p_stack);
         return error_print (ret);
       }
-      p_tn -> p_r = (struct tree_node *) p_s;
+      ret = tree_node_set_right (p_tn, p_s);
+      if (ret != EC_OK) {
+        main_error_delete_tree_node (p_tn);
+        main_error_delete_stack (p_stack);
+        return error_print (ret);
+      }
 
       ret = stack_pop (p_stack, & p_s);
       if (ret != EC_OK) {
@@ -52,7 +57,12 @@ int main (int argc, char * argv []) {
         main_error_delete_stack (p_stack);
         return error_print (ret);
       }
-      p_tn -> p_l = (struct tree_node *) p_s;
+      ret = tree_node_set_left (p_tn, p_s);
+      if (ret != EC_OK) {        
+        main_error_delete_tree_node (p_tn);
+        main_error_delete_stack (p_stack);
+        return error_print (ret);
+      }
     }
     
     ret = stack_push (p_stack, p_tn);
@@ -63,7 +73,7 @@ int main (int argc, char * argv []) {
     }
   }
 
-  ret = stack_pop (p_stack, p_tn);
+  ret = stack_pop (p_stack, & p_tn);
   if (ret != EC_OK) {
     main_error_delete_stack (p_stack);
     return error_print (ret);

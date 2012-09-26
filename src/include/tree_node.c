@@ -3,7 +3,7 @@
 #include <error_codes.h>
 
 struct tree_node {
-  void * p_void;
+  void const * p_void;
   struct tree_node * p_l;
   struct tree_node * p_r;
 };
@@ -26,13 +26,27 @@ int tree_node_delete (struct tree_node * p_tn) {
   return EC_OK;
 }
 
-int tree_node_print (struct tree_node * p_tn) {
+static int tree_node_print (struct tree_node * p_tn) {
   char * p_char = NULL;
   if (p_tn == NULL) return EC_NULL_POINTER;
   if (p_tn -> p_void == NULL) return EC_NULL_POINTER;
   p_char = (char *) (p_tn -> p_void);
   putchar (* p_char);
   printf ("\n\r");
+  return EC_OK;
+}
+
+int tree_node_set_left (struct tree_node * p_tn, struct tree_node * p_l) {
+  if (p_tn == NULL) return EC_NULL_POINTER;
+  if (p_l == NULL) return EC_NULL_POINTER;
+  p_tn -> p_l = p_l;
+  return EC_OK;
+}
+
+int tree_node_set_right (struct tree_node * p_tn, struct tree_node * p_r) {
+  if (p_tn == NULL) return EC_NULL_POINTER;
+  if (p_r == NULL) return EC_NULL_POINTER;
+  p_tn -> p_r = p_r;
   return EC_OK;
 }
 
