@@ -93,49 +93,303 @@ int tree_preorder_traverse (tree_t * p_tree) {
   if (p_tree == NULL) return EC_NULL_POINTER;
   
   ret = stack_new (& p_stack, 10);
-  if (ret != EC_OK) return error_print (ret);
+  if (ret != EC_OK) return ret;
   ret = stack_push (p_stack, p_tree);
   if (ret != EC_OK) {
     stack_delete (p_stack);
-    return error_print (ret);
+    return ret;
   }
   ret = stack_is_empty (p_stack, & empty);
   if (ret != EC_OK) {
     stack_delete (p_stack);
-    return error_print (ret);
+    return ret;
   }
   while (empty != 1) {
     ret = stack_pop (p_stack, (void const * *) (& p_tn));
     if (ret != EC_OK) {
       stack_delete (p_stack);
-      return error_print (ret);
+      return ret;
     }
     ret = tree_node_print (p_tn);
     if (ret != EC_OK) {
       stack_delete (p_stack);
-      return error_print (ret);
+      return ret;
     }
     if (p_tn -> p_r != NULL) {
       ret = stack_push (p_stack, p_tn -> p_r);
       if (ret != EC_OK) {
         stack_delete (p_stack);
-        return error_print (ret);
+        return ret;
       }
     }
     if (p_tn -> p_l != NULL) {
       ret = stack_push (p_stack, p_tn -> p_l);
       if (ret != EC_OK) {
         stack_delete (p_stack);
-        return error_print (ret);
+        return ret;
       }
     }
 
     ret = stack_is_empty (p_stack, & empty);
     if (ret != EC_OK) {
       stack_delete (p_stack);
-      return error_print (ret);
+      return ret;
     }
   }
+  stack_delete (p_stack);
+  return EC_OK;
+}
+
+int tree_inorder_traverse (tree_t * p_tree) {
+  int ret = 0;
+  struct stack * p_stack = NULL;
+  struct tree_node * p_tn = NULL;
+  int empty = 0;
+  if (p_tree == NULL) return EC_NULL_POINTER;
+
+  ret = stack_new (& p_stack, 10);
+  if (ret != EC_OK) return EC_OUT_OF_MEMORY;
+
+  ret = stack_push (p_stack, p_tree);
+  if (ret != EC_OK) {
+    stack_delete (p_stack);
+    return ret;
+  }
+  ret = stack_is_empty (p_stack, & empty);
+  if (ret != EC_OK){
+    stack_delete (p_stack);
+    return ret;
+  }
+  while (empty != 1) {
+    ret = stack_get_top(p_stack, (void const * *)(& p_tn));
+    if (ret != EC_OK) {
+      stack_delete (p_stack);
+      return ret;
+    }
+    while (p_tn -> p_l != NULL) {
+      p_tn = p_tn -> p_l;
+      ret = stack_push (p_stack, p_tn);
+      if (ret != EC_OK) {
+        stack_delete (p_stack);
+        return ret;
+      }
+    }
+    ret = stack_pop (p_stack, (void const * *)(& p_tn));
+    if (ret != EC_OK) {
+      stack_delete (p_stack);
+      return ret;
+    }
+    ret = tree_node_print (p_tn);
+    if (ret != EC_OK) {
+      stack_delete (p_stack);
+      return ret;
+    }
+    ret = stack_is_empty (p_stack, & empty);
+    if (ret != EC_OK) {
+      stack_delete (p_stack);
+      return ret;
+    }
+    if (empty != 1) {
+      ret = stack_pop (p_stack, (void const * *)(& p_tn));
+      if (ret != EC_OK) {
+        stack_delete (p_stack);
+        return ret;
+      }
+      ret = tree_node_print (p_tn);
+      if (ret != EC_OK) {
+        stack_delete (p_stack);
+        return ret;
+      }
+      if (p_tn -> p_r != NULL) {
+        p_tn = p_tn -> p_r;
+        ret = stack_push (p_stack, p_tn);
+        if (ret != EC_OK) {
+          stack_delete (p_stack);
+          return ret;
+        }
+      }
+    }
+    ret = stack_is_empty (p_stack, & empty);
+    if (ret != EC_OK){
+      stack_delete (p_stack);
+      return ret;
+    }
+  }
+
+  stack_delete (p_stack);
+  return EC_OK;
+}
+
+static int tree_inorder_traverse_r (tree_t * p_tree) {
+  int ret = 0;
+  struct stack * p_stack = NULL;
+  struct tree_node * p_tn = NULL;
+  int empty = 0;
+  if (p_tree == NULL) return EC_NULL_POINTER;
+  
+  ret = stack_new (& p_stack , 10);
+  if (ret != EC_OK) return ret;
+
+  ret = stack_push (p_stack, p_tree);
+  if (ret != EC_OK) {
+    stack_delete (p_stack);
+    return ret;
+  }
+  ret = stack_is_empty (p_stack, & empty);
+  if (ret != EC_OK){
+    stack_delete (p_stack);
+    return ret;
+  }
+  while (empty != 1) {
+    ret = stack_get_top (p_stack, (void const * *)(& p_tn));
+    if (ret != EC_OK) {
+      stack_delete (p_stack);
+      return ret;
+    }
+    while (p_tn -> p_r != NULL) {
+      p_tn = p_tn -> p_r;
+      ret = stack_push (p_stack, p_tn);
+      if (ret != EC_OK) {
+        stack_delete (p_stack);
+        return ret;
+      }
+    }
+    ret = stack_pop (p_stack, (void const * *)(& p_tn));
+    if (ret != EC_OK) {
+      stack_delete (p_stack);
+      return ret;
+    }
+    ret = tree_node_print (p_tn);
+    if (ret != EC_OK) {
+      stack_delete (p_stack);
+      return ret;
+    }
+
+    ret = stack_is_empty (p_stack, & empty);
+    if (empty != 1) {
+      ret = stack_pop (p_stack, (void const * *)(& p_tn));
+      if (ret != EC_OK) {
+        stack_delete (p_stack);
+        return ret;
+      }
+      ret = tree_node_print (p_tn);
+      if (ret != EC_OK) {
+        stack_delete (p_stack);
+        return ret;
+      }
+      if (p_tn -> p_l != NULL) {
+        p_tn = p_tn -> p_l;
+        ret = stack_push (p_stack, p_tn);
+        if (ret != EC_OK) {
+          stack_delete (p_stack);
+          return ret;
+        }
+      }
+    }
+
+    ret = stack_is_empty (p_stack, & empty);
+    if (ret != EC_OK){
+      stack_delete (p_stack);
+      return ret;
+    }
+  }
+
+  stack_delete (p_stack);
+  return EC_OK;
+}
+
+int tree_postorder_traverse (tree_t * p_tree) {
+  int ret = 0;
+  struct tree_node * p_tn = NULL;
+  struct stack * p_stack = NULL;
+  int empty = 0;
+  if (p_tree == NULL) return EC_NULL_POINTER;
+
+  ret = stack_new (& p_stack, 10);
+  if (ret != EC_OK) return ret;
+
+  ret = stack_push (p_stack, p_tree);
+  if (ret != EC_OK) {
+    stack_delete (p_stack);
+    return ret;
+  }
+  ret = stack_is_empty (p_stack, & empty);
+  if (ret != EC_OK) {
+    stack_delete (p_stack);
+    return ret;
+  }  
+  while (empty != 1) {
+    ret = stack_get_top (p_stack, (void const * *)(& p_tn));
+    if (ret != EC_OK) {
+      stack_delete (p_stack);
+      return ret;
+    }
+    while (p_tn -> p_l != NULL) {
+      p_tn = p_tn -> p_l;
+      ret = stack_push (p_stack, p_tn);
+      if (ret != EC_OK) {
+        stack_delete (p_stack);
+        return ret;
+      }
+    }
+    if (p_tn -> p_r != NULL) {
+      p_tn = p_tn -> p_r;
+      ret = stack_push (p_stack, p_tn);
+      if (ret != EC_OK) {
+        stack_delete (p_stack);
+        return ret;
+      }
+    } else {
+      ret = stack_pop (p_stack, (void const * *)(& p_tn));
+      if (ret != EC_OK) {
+        stack_delete (p_stack);
+        return ret;
+      }
+      ret = tree_node_print (p_tn);
+      if (ret != EC_Ok) {
+        stack_delete (p_stack);
+        return ret;
+      }
+      ret = stack_is_empty (p_stack, & empty);
+      if (ret != EC_OK) {
+        stack_delete (p_stack);
+        return ret;
+      }
+      if (empty != 1) {
+        ret = stack_get_top (p_stack, (void const * *)(& p_tn));
+        if (ret != EC_OK) {
+          stack_delete (p_stack);
+          return ret;
+        }
+        if (p_tn -> p_r != NULL) {
+          p_tn = p_tn -> p_r;
+          ret = stack_push (p_stack, p_tn);
+          if (ret != EC_OK) {
+            stack_delete (p_stack);
+            return ret;
+          }
+        } else {
+          ret = stack_pop (p_stack, (void const * *)(& p_tn));
+          if (ret != EC_OK) {
+            stack_delete (p_stack);
+            return ret;
+          }
+          ret = tree_node_print (p_tn);
+          if (ret != EC_OK) {
+            stack_delete (p_stack);
+            return ret;
+          }
+        }
+      }
+    }
+
+    ret = stack_is_empty (p_stack, & empty);
+    if (ret != EC_OK) {
+      stack_delete (p_stack);
+      return ret;
+    }
+  }
+
   stack_delete (p_stack);
   return EC_OK;
 }

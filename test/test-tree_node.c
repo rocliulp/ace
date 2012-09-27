@@ -92,6 +92,20 @@ int main (int argc, char * argv []) {
     return error_print (ret);
   }
 
+  printf ("Tree inorder traverse:\n\r");
+  ret = tree_inorder_traverse (p_tn);
+  if (ret != EC_OK) {
+    tree_delete (p_tn);
+    return error_print (ret);
+  }
+
+  printf ("Tree post order travers:\n\r");
+  ret = tree_postorder_traverse (p_tn);
+  if (ret != EC_OK) {
+    tree_delete (p_tn);
+    return error_print (ret);
+  }
+
   tree_delete ((tree_t *)p_tn);
 
   return EC_OK;

@@ -68,6 +68,15 @@ int stack_push (struct stack * p_stack, void const * p_obj) {
   return EC_OK;
 }
 
+int stack_get_top (struct stack const * p_stack, void const * * pp_obj) {
+  if (p_stack == NULL) return EC_NULL_POINTER;
+  if (pp_obj == NULL) return EC_NULL_POINTER;
+  if (p_stack -> top < 0) return EC_OUT_OF_RANGE;
+  if (p_stack -> top > p_stack -> capacity -1) return EC_OUT_OF_RANGE;
+  * pp_obj = p_stack -> p_array[p_stack -> top];
+  return EC_OK;
+}
+
 int stack_is_empty (struct stack const * p_stack, int * empty) {
   if (p_stack == NULL) return EC_NULL_POINTER;
   if (empty == NULL) return EC_NULL_POINTER;
