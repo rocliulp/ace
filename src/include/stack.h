@@ -18,10 +18,6 @@ int stack_is_empty (struct stack const * p_stack, int * empty);
 
 int stack_print (struct stack const * p_stack);
 
-/*
- * Should there be a method of get_top ()
- */
-
 #endif
 
 
