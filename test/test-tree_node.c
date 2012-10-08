@@ -99,8 +99,22 @@ int main (int argc, char * argv []) {
     return error_print (ret);
   }
 
-  printf ("Tree post order travers:\n\r");
+  printf ("Tree post order traverse:\n\r");
   ret = tree_postorder_traverse (p_tn);
+  if (ret != EC_OK) {
+    tree_delete (p_tn);
+    return error_print (ret);
+  }
+
+  printf ("Tree level traverse:\n\r");
+  ret = tree_level_traverse (p_tn);
+  if (ret != EC_OK) {
+    tree_delete (p_tn);
+    return error_print (ret);
+  }
+
+  printf ("Forest level traverse:\n\r");
+  ret = forest_level_traverse (p_tn);
   if (ret != EC_OK) {
     tree_delete (p_tn);
     return error_print (ret);

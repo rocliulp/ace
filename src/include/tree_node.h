@@ -15,5 +15,8 @@ int tree_print (tree_t * p_tree);
 int tree_preorder_traverse (tree_t * p_tree);
 int tree_inorder_traverse (tree_t * p_tree);
 int tree_postorder_traverse (tree_t * p_tree);
+int tree_level_traverse (tree_t * p_tree);
+
+int forest_level_traverse (tree_t * p_tree);
 
 #endif

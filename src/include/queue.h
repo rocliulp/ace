@@ -7,5 +7,7 @@ int queue_delete (struct queue * p_queue);
 
 int queue_put (struct queue * p_queue, void const * p_obj);
 int queue_get (struct queue * p_queue, void const * * pp_obj);
+int queue_is_empty (struct queue * p_queue, int * empty);
+int queue_print (struct queue const * p_queue);
 
 #endif

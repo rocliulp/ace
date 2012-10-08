@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <error_codes.h>
 #include <stack.h>
+#include <queue.h>
 
 struct tree_node {
   void const * p_void;
@@ -402,5 +403,92 @@ int tree_postorder_traverse (tree_t * p_tree) {
 
   stack_delete (p_stack);
   stack_delete (p_stack_visited);
+  return EC_OK;
+}
+
+static int level_traverse_error_exit (int ret,
+    struct queue * p_queue) {
+  queue_delete (p_queue);
+  return ret;
+}
+
+int tree_level_traverse (tree_t * p_tree) {
+  int ret = 0;
+  struct queue * p_queue = NULL;
+  int empty = 0;
+  struct tree_node * p_tn = NULL;
+  if (p_tree == NULL) return EC_NULL_POINTER;
+
+  ret = queue_new (& p_queue, 10);
+  if (ret != EC_OK) return ret;
+  ret = queue_put (p_queue, p_tree);
+  if (ret != EC_OK) return level_traverse_error_exit (ret, p_queue);
+  ret = queue_is_empty (p_queue, & empty);
+  if (ret != EC_OK) return level_traverse_error_exit (ret, p_queue);
+
+  while (empty != 1) {
+    ret = queue_get (p_queue, (void const * *)(& p_tn));
+    if (ret != EC_OK) return level_traverse_error_exit (ret, p_queue);
+    ret = tree_node_print (p_tn);
+    if (ret != EC_OK) return level_traverse_error_exit (ret, p_queue);
+    if (p_tn -> p_l != NULL) {
+      ret = queue_put (p_queue, p_tn -> p_l);
+      if (ret != EC_OK) return level_traverse_error_exit (ret, p_queue);
+    }
+    if (p_tn -> p_r != NULL) {
+      ret = queue_put (p_queue, p_tn -> p_r);
+      if (ret != EC_OK) return level_traverse_error_exit (ret, p_queue);
+    }
+    
+    ret = queue_is_empty (p_queue, & empty);
+    if (ret != EC_OK) return level_traverse_error_exit (ret, p_queue);
+  }  
+
+  queue_delete (p_queue);
+
+  return EC_OK;
+}
+
+static int forest_level_traverse_error_exit (int ret, struct queue * p_queue) {
+  queue_delete (p_queue);
+  return ret;
+}
+
+int forest_level_traverse (tree_t * p_tree) {
+  int ret = 0;
+  int empty = 0;
+  struct queue * p_queue = NULL;
+  struct tree_node * p_tn = NULL;
+  if (p_tree == NULL) return EC_NULL_POINTER;
+
+  ret = queue_new (& p_queue, 10);
+  if (ret != EC_OK) return ret;
+
+  p_tn = p_tree;
+  while (p_tn != NULL) {
+    ret = queue_put (p_queue, p_tn);
+    if (ret != EC_OK) return forest_level_traverse_error_exit (ret, p_queue);
+    p_tn = p_tn -> p_r;
+  }
+  ret = queue_is_empty (p_queue, & empty);
+  if (ret != EC_OK) return forest_level_traverse_error_exit (ret, p_queue);
+  while (empty != 1) {
+    ret = queue_get (p_queue, (void const * *)(& p_tn));
+    if (ret != EC_OK) return forest_level_traverse_error_exit (ret, p_queue);
+    ret = tree_node_print (p_tn);
+    if (ret != EC_OK) return forest_level_traverse_error_exit (ret, p_queue);
+    
+    p_tn = p_tn -> p_l;
+    while (p_tn != NULL) {
+      ret = queue_put (p_queue, p_tn);
+      if (ret != EC_OK) return forest_level_traverse_error_exit (ret, p_queue);
+      p_tn = p_tn -> p_r;
+    }
+
+    ret = queue_is_empty (p_queue, & empty);
+    if (ret != EC_OK) return forest_level_traverse_error_exit (ret, p_queue);
+  }
+
+  queue_delete (p_queue);
   return EC_OK;
 }
