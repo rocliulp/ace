@@ -50,10 +50,34 @@ int Tree_New (Tree * * ppTree) {
 }
 
 int Tree_Delete (Tree * pTree) {
+  int ret = 0;
+  if (pTree == NULL) return EC_NULL_POINTER;
+  if (pTree -> pLeft != NULL) {
+    ret = TNode_Delete (pTree -> pLeft);
+    if (ret != 0) return ret;
+  }
+  if (pTree -> pRight != NULL) {
+    ret = TNode_Delete (pTree -> pRight);
+    if (ret != 0) return ret;
+  }
+  ret = TNode_Delete (pTree);
+  if (ret != 0) return ret;
   return 0;
 }
 
 int Tree_Print (Tree * pTree) {
+  int ret = 0;
+  if (pTree == NULL) return EC_NULL_POINTER;
+  if (pTree -> pLeft != NULL) {
+    ret = TNode_Print (pTree -> pLeft);
+    if (ret != 0) return ret;
+  }
+  ret = TNode_Print (pTree);
+  if (ret != 0) return ret;
+  if (pTree -> pRight != NULL) {
+    ret = TNode_Print (pTree -> pRight);
+    if (ret != 0) return ret;
+  }
   return 0;
 }
 
