@@ -40,14 +40,60 @@ static int TNode_Delete (struct TNode * pNode) {
 
 static int TNode_Print (struct TNode const * pNode) {
   if (pNode == NULL) return EC_NULL_POINTER;
-  printf ("(%d, %d)\n\r", pNode -> x, pNode -> y);
+  printf ("%d: (%d, %d)\n\r", pNode -> id, pNode -> x, pNode -> y);
   return 0;
 }
 
 typedef struct TNode Tree;
+
+static int TreeNewFail (int ret, Tree * pTree, struct queue * pQueue) {
+  if (pTree == NULL) return EC_NULL_POINTER;
+  if (pQueue == NULL) return EC_NULL_POINTER;
+  Tree_Delete (pTree);
+  queue_delete (pQueue);
+  return ret;
+}
+
 int Tree_New (Tree * * ppTree) {
+  int ret = 0;
+  struct queue * pQueue = NULL;
+  int total = -1;
+  struct TNode * pNd = NULL;
+
   if (ppTree == NULL) return EC_NULL_POINTER;
 
+  ret = TNode_New (& pNd, ++ total);
+  if (ret != 0) return ret;
+  * ppTree = pNd;
+  
+  ret = queue_new (& pQueue);
+  if (ret != 0) {
+    Tree_Delete (* ppTree);
+    return ret;
+  }
+
+  ret = queue_put (pQueue, pNd);
+  if (ret != 0) {
+    Tree_Delete (* ppTree);
+    return ret;
+  }
+
+  while (total < 15) {
+    ret = queue_get (pQueue, & pNd);
+    if (ret != 0) return TreeNewFail (ret, * ppTree, pQueue);
+
+    ret = TNode_New (& (pNd -> pLeft), ++ total);
+    if (ret != 0) return TreeNewFail (ret, * ppTree, pQueue);
+    ret = queue_push (pQueue, pNd -> pLeft);
+    if (ret != 0) return TreeNewFail (ret, * ppTree, pQueue);
+
+    ret = TNode_New (& (pNd -> pRight), ++ total);
+    if (ret != 0) return TreeNewFail (ret, * ppTree, pQueue);
+    ret = queue_push (pQueue, pNd -> pRight);
+    if (ret != 0) return TreeNewFail (ret, * ppTree, pQueue);
+  }
+
+  queue_delete (pQueue);
   return 0;
 }
 
