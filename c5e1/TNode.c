@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <error_codes.h>
+#include <queue.h>
 
 struct TNode {
   struct TNode * pLeft;
@@ -46,7 +47,7 @@ static int TNode_Print (struct TNode const * pNode) {
 
 typedef struct TNode Tree;
 
-static int TreeNewFail (int ret, Tree * pTree, struct queue * pQueue) {
+static int Tree_New_Fail (int ret, Tree * pTree, struct queue * pQueue) {
   if (pTree == NULL) return EC_NULL_POINTER;
   if (pQueue == NULL) return EC_NULL_POINTER;
   Tree_Delete (pTree);
@@ -66,7 +67,7 @@ int Tree_New (Tree * * ppTree) {
   if (ret != 0) return ret;
   * ppTree = pNd;
   
-  ret = queue_new (& pQueue);
+  ret = queue_new (& pQueue, 10);
   if (ret != 0) {
     Tree_Delete (* ppTree);
     return ret;
@@ -78,19 +79,23 @@ int Tree_New (Tree * * ppTree) {
     return ret;
   }
 
-  while (total < 15) {
-    ret = queue_get (pQueue, & pNd);
-    if (ret != 0) return TreeNewFail (ret, * ppTree, pQueue);
+  while (total < 10) {
+    struct TNode * pNdEx = NULL;
 
-    ret = TNode_New (& (pNd -> pLeft), ++ total);
-    if (ret != 0) return TreeNewFail (ret, * ppTree, pQueue);
-    ret = queue_push (pQueue, pNd -> pLeft);
-    if (ret != 0) return TreeNewFail (ret, * ppTree, pQueue);
+    ret = queue_get (pQueue, (void const * *) (& pNd));
+    if (ret != 0) return Tree_New_Fail (ret, * ppTree, pQueue);
 
-    ret = TNode_New (& (pNd -> pRight), ++ total);
-    if (ret != 0) return TreeNewFail (ret, * ppTree, pQueue);
-    ret = queue_push (pQueue, pNd -> pRight);
-    if (ret != 0) return TreeNewFail (ret, * ppTree, pQueue);
+    ret = TNode_New (& (pNdEx), ++ total);
+    if (ret != 0) return Tree_New_Fail (ret, * ppTree, pQueue);
+    pNd -> pLeft = pNdEx;
+    ret = queue_put (pQueue, pNdEx);
+    if (ret != 0) return Tree_New_Fail (ret, * ppTree, pQueue);
+
+    ret = TNode_New (& (pNdEx), ++ total);
+    if (ret != 0) return Tree_New_Fail (ret, * ppTree, pQueue);
+    pNd -> pRight = pNdEx;
+    ret = queue_put (pQueue, pNdEx);
+    if (ret != 0) return Tree_New_Fail (ret, * ppTree, pQueue);
   }
 
   queue_delete (pQueue);
@@ -117,18 +122,40 @@ int Tree_Print (Tree const * pTree) {
   int ret = 0;
   if (pTree == NULL) return EC_NULL_POINTER;
   if (pTree -> pLeft != NULL) {
-    ret = TNode_Print ((struct TNode const *) (pTree -> pLeft));
+    ret = Tree_Print ((struct TNode const *) (pTree -> pLeft));
     if (ret != 0) return ret;
   }
   ret = TNode_Print ((struct TNode const *) pTree);
   if (ret != 0) return ret;
   if (pTree -> pRight != NULL) {
-    ret = TNode_Print ((struct TNode const *) (pTree -> pRight));
+    ret = Tree_Print ((struct TNode const *) (pTree -> pRight));
     if (ret != 0) return ret;
   }
   return 0;
 }
 
 int Tree_Position (Tree * pTree, int x, int y, int width, int height) {
+  int ret = 0;
+  if (pTree == NULL) return EC_NULL_POINTER;
+  if (width < 1) return EC_OUT_OF_RANGE;
+  if (height < 1) return EC_OUT_OF_RANGE;
+
+  pTree -> x = x;
+  pTree -> y = y;
+
+  if (pTree -> pLeft != NULL) {
+    int leftX = x - width / 4;
+    ret = Tree_Position (pTree -> pLeft, leftX, y, width / 2, height / 2);
+    if (ret != 0) return ret;
+  }
+
+  if (pTree -> pRight != NULL) {
+    int rightX = x + width / 4;
+    int rightY = y + height / 4;
+    ret = Tree_Position (pTree -> pRight, rightX, rightY, width / 2,
+        height / 2);
+    if (ret != 0) return ret;
+  }
+
   return 0;
 }
