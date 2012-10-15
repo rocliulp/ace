@@ -159,3 +159,12 @@ int Tree_Position (Tree * pTree, int x, int y, int width, int height) {
 
   return 0;
 }
+
+int Tree_GetExternalPath (Tree * pTree, int * pPath) {
+  if (pTree == NULL) return EC_NULL_POINTER;
+  if (pTree == NULL) return EC_NULL_POINTER;
+
+
+
+  return EC_OK;
+}
