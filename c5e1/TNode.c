@@ -27,7 +27,7 @@ static int TNode_New (struct TNode * * ppNode, int id) {
   pNode -> pLeft = NULL;
   pNode -> pRight = NULL;
   pNode -> pParent = NULL;
-  int level = -1;
+  pNode -> level = -1;
   pNode -> id = id;
   pNode -> x = 0;
   pNode -> y = 0;
@@ -45,11 +45,12 @@ static int TNode_Delete (struct TNode * pNode) {
 
 static int TNode_Print (struct TNode const * pNode) {
   if (pNode == NULL) return EC_NULL_POINTER;
-  printf ("%d: (%d, %d)\n\r", pNode -> id, pNode -> x, pNode -> y);
+  printf ("id: %d, (x, y): (%d, %d), level: %d\n\r",
+      pNode -> id, pNode -> x, pNode -> y, pNode -> level);
   return 0;
 }
 
-static int TNode_GetLevel (struct TNode const * pNode, int * pLevel) {
+static int TNode_GetLevel (struct TNode * pNode, int * pLevel) {
   if (pNode == NULL) return EC_NULL_POINTER;
   if (pLevel == NULL) return EC_NULL_POINTER;
 
@@ -186,15 +187,15 @@ int Tree_Position (Tree * pTree, int x, int y, int width, int height) {
   return 0;
 }
 
-static inline int Tree_GetExternalPath_Fail (int ret, queue * pQueue) {
+static inline int Tree_GetExternalPath_Fail (int ret, struct queue * pQueue) {
   queue_delete (pQueue);
   return ret;
 }
 
 int Tree_GetExternalPath (Tree * pTree, int * pPath) {
   int ret = 0;
-  queue * pQueue = NULL;
-  TNode * pNode = NULL;
+  struct queue * pQueue = NULL;
+  struct TNode * pNode = NULL;
   int empty = 0;
   int level = -1;
 
@@ -205,15 +206,15 @@ int Tree_GetExternalPath (Tree * pTree, int * pPath) {
   ret = queue_new (& pQueue, 10);
   if (ret != EC_OK) return ret;
 
-  ret = queue_put (pQueue, (void const * *) pTree);
+  ret = queue_put (pQueue, pTree);
   if (ret != EC_OK) return Tree_GetExternalPath_Fail (ret, pQueue);
   ret = queue_is_empty (pQueue, & empty);
   if (ret != EC_OK) return Tree_GetExternalPath_Fail (ret, pQueue);
   while (empty == 0) {
-    ret = queue_get (pQueue, & pNode);
+    ret = queue_get (pQueue, (void const * *) (& pNode));
     if (ret != EC_OK) return Tree_GetExternalPath_Fail (ret, pQueue);
     if (pNode -> pLeft == NULL && pNode -> pRight == NULL) {
-      ret = TNode_GetLevel ((struct TNode const *) pNode, & levle);
+      ret = TNode_GetLevel ((struct TNode *) pNode, & level);
       if (ret != EC_OK) return Tree_GetExternalPath_Fail (ret, pQueue);
       * pPath += level;
     } else {
@@ -232,5 +233,13 @@ int Tree_GetExternalPath (Tree * pTree, int * pPath) {
   }
 
   queue_delete (pQueue);
+  return EC_OK;
+}
+
+typedef struct TNode Forest;
+int Forest_GetExternalPath (Forest * pForest, int * pPath) {
+  if (pForest == NULL) return EC_NULL_POINTER;
+  if (pPath == NULL) return EC_NULL_POINTER;
+
   return EC_OK;
 }

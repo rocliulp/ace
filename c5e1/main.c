@@ -42,7 +42,13 @@ int main (int argc, char * argv []) {
 
   ret = Tree_GetExternalPath (pTree, & path);
   if (ret != EC_OK) return main_Fail (ret, pTree);
-  printf ("External Path: %d\n\r", path);
+  printf ("Tree external path: %d\n\r", path);
+
+  printf ("\n\r");
+  
+  ret = Forest_GetExternalPath (pTree, & path);
+  if (ret != EC_OK) return main_Fail (ret, pTree);
+  printf ("Forest external path: %d\n\r", path);
 
   Tree_Delete (pTree);
   return 0;

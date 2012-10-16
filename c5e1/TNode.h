@@ -10,4 +10,7 @@ int Tree_Print (Tree const * pTree);
 int Tree_Position (Tree * pTree, int x, int y, int width, int height);
 int Tree_GetExternalPath (Tree * pTree, int * pPath);
 
+typedef struct TNode Forest;
+int Forest_GetExternalPath (Forest * pForest, int * pPath);
+
 #endif
