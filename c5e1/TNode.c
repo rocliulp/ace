@@ -236,10 +236,76 @@ int Tree_GetExternalPath (Tree * pTree, int * pPath) {
   return EC_OK;
 }
 
-typedef struct TNode Forest;
-int Forest_GetExternalPath (Forest * pForest, int * pPath) {
-  if (pForest == NULL) return EC_NULL_POINTER;
+typedef struct TNode CTNode;
+static int CTNode_SetLevel (CTNode * pCTNode, int level) {
+  int ret = 0;
+  if (pCTNode == NULL) return EC_NULL_POINTER;
+  if (level < 1) return EC_INVALID_PARAMETER;
+
+  pCTNode -> level = level;
+  if (pCTNode -> pLeft != NULL) {
+    ret = CTNode_SetLevel (pCTNode -> pLeft, level + 1);
+    if (ret != EC_OK) return ret;
+  }
+  if (pCTNode -> pRight != NULL) {
+    ret = CTNode_SetLevel (pCTNode -> pRight, level);
+    if (ret != EC_OK) return ret;
+  }
+  return EC_OK;
+}
+
+typedef struct TNode CTree;
+
+static int CTree_SetLevel (CTree * pCTree) {
+  int ret = 0;
+  if (pCTree == NULL) return EC_NULL_POINTER;
+  ret = CTNode_SetLevel (pCTree, 1);
+  if (ret != EC_OK) return ret;
+  return EC_OK;
+}
+
+static inline int CTree_GetExternalPath_Fail (int ret, struct queue * pQueue) {
+  queue_delete (pQueue);
+  return ret;
+}
+
+int CTree_GetExternalPath (CTree * pCTree, int * pPath) {
+  int ret = 0;
+  struct queue * pQueue = NULL;
+  int empty = 0;
+  CTNode * pCTNode = NULL;
+
+  if (pCTree == NULL) return EC_NULL_POINTER;
   if (pPath == NULL) return EC_NULL_POINTER;
 
+  ret = CTree_SetLevel (pCTree);
+  if (ret != EC_OK) return ret;
+
+  ret = queue_new (& pQueue, 10);
+  if (ret != EC_OK) return ret;
+  ret = queue_put (pQueue, pCTree);
+  if (ret != EC_OK) return CTree_GetExternalPath_Fail (ret, pQueue);
+  ret = queue_is_empty (pQueue, & empty);
+  if (ret != EC_OK) return CTree_GetExternalPath_Fail (ret, pQueue);
+  while (empty == 0) {
+    ret = queue_get (pQueue, (void const * *)(& pCTNode));
+    if (ret != EC_OK) return CTree_GetExternalPath_Fail (ret, pQueue);
+    if (pCTNode -> pLeft == NULL && pCTNode -> pRight == NULL) {
+      * pPath += pCTNode -> level;
+    } else {
+      if (pCTNode -> pLeft != NULL) {
+        ret = queue_put (pQueue, pCTNode -> pLeft);
+        if (ret != EC_OK) return CTree_GetExternalPath_Fail (ret, pQueue);
+      }
+      if (pCTNode -> pRight != NULL) {
+        ret = queue_put (pQueue, pCTNode -> pRight);
+        if (ret != EC_OK) return CTree_GetExternalPath_Fail (ret, pQueue);
+      }
+    }
+
+    ret = queue_is_empty (pQueue, & empty);
+    if (ret != EC_OK) return CTree_GetExternalPath_Fail (ret, pQueue);
+  }
+  queue_delete (pQueue);
   return EC_OK;
 }

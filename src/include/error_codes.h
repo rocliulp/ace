@@ -26,5 +26,6 @@
 #define EC_INVALID_PARAMETER 2
 #define EC_OUT_OF_MEMORY     3
 #define EC_OUT_OF_RANGE      4
+#define EC_IMPOSSIBLE_CASE   5
 
 #endif
