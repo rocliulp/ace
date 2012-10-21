@@ -190,6 +190,69 @@ int Tree_NoRecursionInOrder (Tree * pTree) {
   return EC_OK;
 }
 
+static int Tree_RecursionPostOrder (Tree * pTree) {
+  int ret = 0;
+  if (pTree == NULL) return EC_NULL_POINTER;
+  if (pTree -> pLeft != NULL) {
+    ret = Tree_RecursionPostOrder (pTree -> pLeft);
+    if (ret != EC_OK) return ret;
+  }
+  if (pTree -> pRight != NULL) {
+    ret = Tree_RecursionPostOrder (pTree -> pRight);
+    if (ret != EC_OK) return ret;
+  }
+  ret = TNode_Print (pTree);
+  if (ret != EC_OK) return ret;
+  return EC_OK;
+}
+
+static inline int Tree_NoRecursionPostOrder_Fail (int ret, struct stack * pStack) {
+  stack_delete (pStack);
+  return ret;
+}
+
+static int Tree_NoRecursionPostOrder (Tree * pTree) {
+  int ret = 0;
+  struct stack * pStack = NULL;
+  struct TNode * pTNode = NULL;
+  int empty = 0;
+
+  if (pTree == NULL) return EC_NULL_POINTER;
+
+  ret = stack_new (& pStack, 10);
+  if (ret != EC_OK) return ret;
+
+  pTNode = pTree;
+  while (pTNode != NULL) {
+    if (pTNode -> pLeft != NULL && pTNode -> pLeft -> visited == FALSE) {
+      ret = stack_push (pStack, pTNode);
+      if (ret != EC_OK) return Tree_NoRecursionPostOrder_Fail (ret, pStack);
+      pTNode = pTNode -> pLeft;
+    } else if (pTNode -> pRight != NULL
+        && pTNode -> pRight -> visited == FALSE) {
+      ret = stack_push (pStack, pTNode);
+      if (ret != EC_OK) return Tree_NoRecursionPostOrder_Fail (ret, pStack);
+      pTNode = pTNode -> pRight;
+    } else {    
+      ret = TNode_Print (pTNode);
+      if (ret != EC_OK) return Tree_NoRecursionPostOrder_Fail (ret, pStack);
+      pTNode -> visited = TRUE;
+      
+      ret = stack_is_empty (pStack, & empty);
+      if (ret != EC_OK) return Tree_NoRecursionPostOrder_Fail (ret, pStack);
+      if (empty == FALSE) {
+        ret = stack_pop (pStack, (void const * *)(& pTNode));
+        if (ret != EC_OK) return Tree_NoRecursionPostOrder_Fail (ret, pStack);
+      } else {
+        pTNode = NULL;
+      }
+    }
+  }
+
+  stack_delete (pStack);
+  return EC_OK;
+}
+
 static inline int main_Fail (int ret, Tree * pTree) {
   Tree_Delete (pTree);
   return ret;
@@ -207,10 +270,26 @@ int main (int argc, char * argv []) {
 
   printf ("\n\r");
   ret = Tree_ResetVisited (pTree);
-  if (ret != EC_OK) return ret;
+  if (ret != EC_OK) return main_Fail (ret, pTree);
 
   printf ("No Recursion In Order:\n\r");
   ret = Tree_NoRecursionInOrder (pTree);
+  if (ret != EC_OK) return main_Fail (ret, pTree);
+
+  printf ("\n\r");
+  ret = Tree_ResetVisited (pTree);
+  if (ret != EC_OK) return main_Fail (ret, pTree);
+
+  printf ("Recursion Post Order:\n\r");
+  ret = Tree_RecursionPostOrder (pTree);
+  if (ret != EC_OK) return main_Fail (ret, pTree);
+
+  printf ("\n\r");
+  ret = Tree_ResetVisited (pTree);
+  if (ret != EC_OK) return main_Fail (ret, pTree);
+
+  printf ("No Recursion Post Order:\n\r");
+  ret = Tree_NoRecursionPostOrder (pTree);
   if (ret != EC_OK) return main_Fail (ret, pTree);
 
   Tree_Delete (pTree);
