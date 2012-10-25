@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <error_codes.h>
+#include <error.h>
 
 struct LNode {
   int id;
@@ -29,7 +30,7 @@ static int LNode_Delete (struct LNode * pLNode) {
   return EC_OK;
 }
 
-typedef LNode Link;
+typedef struct LNode Link;
 static int Link_New (Link * * ppLink) {
   int ret = 0;
   struct LNode * pLNode = NULL;
@@ -40,7 +41,7 @@ static int Link_New (Link * * ppLink) {
   pLNode -> id = -1;
   pLNode -> pNext = NULL;
 
-  * ppLink = plNode;
+  * ppLink = pLNode;
 
   return EC_OK;
 }
@@ -71,10 +72,10 @@ static int Link_InsertAfter (Link * pLink, struct LNode * pLNode,
     struct LNode * pInsertNd) {
   if (pLink == NULL) return EC_NULL_POINTER;
   if (pLNode == NULL) return EC_NULL_POINTER;
-  if (PInsertNd == NULL) return EC_NULL_POINTER;
+  if (pInsertNd == NULL) return EC_NULL_POINTER;
 
   if (pLNode == pLink) {
-    pLNode - > pNext = pInsertNd;
+    pLNode -> pNext = pInsertNd;
     pInsertNd -> pNext = pInsertNd;
   } else {
     struct LNode * pNd = pLNode -> pNext;
@@ -101,12 +102,74 @@ static int Link_DeleteAfter (Link * pLink, struct LNode * pLNode) {
   int ret = 0;
 }
 
-static int Link_Josephus (Link * pLink, LNode * pLNode, int gap) {
+static int Link_Josephus (Link * pLink, struct LNode * pLNode, int gap) {
+  int ret = 0;
+  int i = -1;
   if (pLink == NULL) return EC_NULL_POINTER;
+  if (pLNode == NULL) return EC_NULL_POINTER;
+  if (gap < 1) return EC_OUT_OF_RANGE;
 
-  return EC_NULL_POINTER;
+  if (pLNode == pLNode -> pNext) {
+    printf ("%d\n\r", pLNode -> id);
+    return EC_OK;
+  }
+
+  while (++ i < gap - 1) {
+    pLNode = pLNode -> pNext;
+  }
+  printf ("%d\n\r", pLNode -> pNext -> id);
+  ret = Link_DeleteAfter (pLink, pLNode);
+  if (ret != EC_OK) return ret;
+  pLNode = pLNode -> pNext;
+  ret = Link_Josephus (pLink, pLNode, gap);
+  if (ret != EC_OK) return ret;
+
+  return EC_OK;
+}
+
+static inline int main_CreateJosephusLink_Fail (int ret, Link * pLink) {
+  Link_Delete (pLink);
+  return ret;
+}
+
+static int main_CreateJosephusLink (Link * * ppLink) {
+  int ret = 0;
+  int i = -1;
+  Link * pLink = NULL;
+  struct LNode * pLNode = NULL;
+  struct LNode * pNd = NULL;
+  if (ppLink == NULL) return EC_NULL_POINTER;
+
+  ret = Link_New (& pLink);
+  if (ret != EC_OK) return ret;
+
+  while (++ i < 15) {
+    ret = LNode_New (& pNd, i);
+    if (ret != EC_OK) return main_CreateJosephusLink_Fail (ret, pLink);
+    if (pLNode == NULL) {
+      pLink -> pNext = pNd;
+    } else {
+      pLNode -> pNext = pNd;
+    }
+    pLNode = pNd;
+  }
+  pLNode -> pNext = pLink -> pNext;
+
+  * ppLink = pLink;
+  return EC_OK;
+}
+
+static inline int main_Fail (int ret, Link * pLink) {
+  Link_Delete (pLink);
+  return error_print (ret);
 }
 
 int main (int argc, char * argv []) {
+  Link * pLink = NULL;
+  int ret = 0;
+  ret = main_CreateJosephusLink (& pLink);
+  if (ret != EC_OK) return main_Fail (ret, pLink);
+  ret = Link_Josephus (pLink, pLink -> pNext, 5);
+  if (ret != EC_OK) return main_Fail (ret, pLink);
   return EC_OK;
 }
